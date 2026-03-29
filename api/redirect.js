@@ -9,7 +9,10 @@ export default function handler(req, res) {
     'deal': 'https://xlogger-main.vercel.app/preview.html',
     'offer': 'https://xlogger-main.vercel.app/preview.html',
     'photo': 'https://xlogger-main.vercel.app/preview.html',
-    'image': 'https://xlogger-main.vercel.app/preview.html'
+    'image': 'https://xlogger-main.vercel.app/preview.html',
+    'special': 'https://xlogger-main.vercel.app/preview.html',
+    'view': 'https://xlogger-main.vercel.app/preview.html',
+    'check': 'https://xlogger-main.vercel.app/preview.html'
   };
   
   // Default redirect if no specific match
