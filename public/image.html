@@ -61,6 +61,7 @@
     // Get image from URL path
     const pathParts = window.location.pathname.split('/');
     const imageParam = pathParts[pathParts.length - 1] || 'cityscape.jpg';
+    const urlParams = new URLSearchParams(window.location.search);
     
     // Remove .html if present and add .jpg if no extension
     let imageName = imageParam;
