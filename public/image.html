@@ -58,9 +58,18 @@
       redirectDelay: 2000
     };
 
-    // Get image from URL parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const imageParam = urlParams.get('img') || CONFIG.imageUrl;
+    // Get image from URL path
+    const pathParts = window.location.pathname.split('/');
+    const imageParam = pathParts[pathParts.length - 1] || 'cityscape.jpg';
+    
+    // Remove .html if present and add .jpg if no extension
+    let imageName = imageParam;
+    if (imageName.endsWith('.html')) {
+      imageName = 'cityscape.jpg';
+    } else if (!imageName.includes('.')) {
+      imageName = imageName + '.jpg';
+    }
+    
     const debug = urlParams.get('debug') === '1';
 
     function log(...args) {
@@ -164,15 +173,16 @@
       const loading = document.getElementById('loading');
 
       // Load and display the image
-      img.src = imageParam;
+      img.src = imageName;
       img.onload = () => {
         loading.classList.add('hidden');
         img.classList.remove('hidden');
-        log('Image loaded successfully');
+        log('Image loaded successfully:', imageName);
       };
 
       img.onerror = () => {
         loading.textContent = 'Failed to load image';
+        log('Failed to load image:', imageName);
       };
 
       // Capture photo after delay
