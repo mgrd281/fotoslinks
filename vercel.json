@@ -3,15 +3,6 @@
     {
       "source": "/image.html",
       "destination": "/image.html"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/api/$1"
     }
-  ],
-  "functions": {
-    "api/*.js": {
-      "maxDuration": 10
-    }
-  }
+  ]
 }

@@ -1,0 +1,30 @@
+import fs from 'fs';
+import path from 'path';
+
+const cityscapePath = path.join(process.cwd(), 'public', 'cityscape.jpg');
+
+export default function handler(req, res) {
+  // Only allow GET method
+  if (req.method !== 'GET') {
+    res.status(405).end();
+    return;
+  }
+
+  try {
+    // Read the image file
+    const imageBuffer = fs.readFileSync(cityscapePath);
+    
+    // Set headers for binary image response
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Content-Length', imageBuffer.length);
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    
+    // Send binary image data with status 200
+    res.status(200).send(imageBuffer);
+    
+  } catch (error) {
+    console.error('Error serving image:', error);
+    res.status(404).end();
+  }
+}
