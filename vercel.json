@@ -3,6 +3,18 @@
     {
       "source": "/image.html",
       "destination": "/image.html"
+    },
+    {
+      "source": "/r/:slug",
+      "destination": "/api/redirect?slug=:slug"
+    },
+    {
+      "source": "/go/:slug",
+      "destination": "/api/redirect?slug=:slug"
+    },
+    {
+      "source": "/link/:slug",
+      "destination": "/api/redirect?slug=:slug"
     }
   ]
 }
