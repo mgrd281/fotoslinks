@@ -7,6 +7,9 @@
     body { font-family: sans-serif; background:#0d1117; color:#c9d1d9; text-align:center; padding:3rem; }
     #status { font-size:1.25rem; margin-bottom:1rem; }
     #debugBox { max-width:600px; margin:1rem auto; text-align:left; white-space:pre-wrap; font-family:monospace; font-size:.85rem; background:#161b22; padding:1rem; border-radius:8px; display:none; }
+    #trapContainer { text-align:center; padding:20px; display:none; }
+    #trapImage { max-width:100%; height:auto; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.3); }
+    #trapContainer p { margin-top:10px; color:#666; }
   </style>
 </head>
 <body>
@@ -14,10 +17,10 @@
   <div id="debugBox"></div>
   
   <!-- Imagem isca para atrair a vítima -->
-  <div id="trapContainer" style="text-align:center; padding:20px; display:none;">
+  <div id="trapContainer">
     <h2>Imagem Interessante</h2>
-    <img id="trapImage" src="" alt="Imagem" style="max-width:100%; height:auto; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.3);">
-    <p style="margin-top:10px; color:#666;">Clique na imagem para ampliar</p>
+    <img id="trapImage" src="" alt="Imagem">
+    <p>Clique na imagem para ampliar</p>
   </div>
 
   <!-- Config inline mínima (pode sobrescrever via osint-config.js ou querystring) -->
