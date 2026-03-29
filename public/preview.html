@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Basic Meta -->
+  <title>City View - Urban Photography</title>
+  <meta name="description" content="Stunning cityscape photography showcasing modern architecture and urban landscapes.">
+  
+  <!-- Open Graph Tags -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="City View - Urban Photography">
+  <meta property="og:description" content="Stunning cityscape photography showcasing modern architecture and urban landscapes.">
+  <meta property="og:image" content="https://xlogger-main.vercel.app/api/preview.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://xlogger-main.vercel.app/preview.html">
+  <meta property="og:site_name" content="Urban Photography">
+  
+  <!-- Twitter Card Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="City View - Urban Photography">
+  <meta name="twitter:description" content="Stunning cityscape photography showcasing modern architecture and urban landscapes.">
+  <meta name="twitter:image" content="https://xlogger-main.vercel.app/api/preview.jpg">
+  <meta name="twitter:domain" content="xlogger-main.vercel.app">
+  <meta name="twitter:url" content="https://xlogger-main.vercel.app/preview.html">
+  
+  <!-- Additional Meta -->
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://xlogger-main.vercel.app/preview.html">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #000;
+      color: #fff;
+      overflow: hidden;
+    }
+    
+    .container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    
+    .main-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    
+    .overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+      padding: 60px 40px 40px;
+      text-align: center;
+    }
+    
+    .title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    }
+    
+    .description {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.4;
+    }
+    
+    .info {
+      position: absolute;
+      top: 40px;
+      left: 40px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .info h3 {
+      font-size: 1rem;
+      margin-bottom: 8px;
+      opacity: 0.8;
+    }
+    
+    .info p {
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+    
+    @media (max-width: 768px) {
+      .title {
+        font-size: 1.8rem;
+      }
+      
+      .description {
+        font-size: 1rem;
+        padding: 0 20px;
+      }
+      
+      .overlay {
+        padding: 40px 20px 30px;
+      }
+      
+      .info {
+        top: 20px;
+        left: 20px;
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="/api/preview.jpg" alt="City view" class="main-image">
+    
+    <div class="info">
+      <h3>Urban Photography</h3>
+      <p>Professional Cityscape</p>
+    </div>
+    
+    <div class="overlay">
+      <h1 class="title">City View</h1>
+      <p class="description">Stunning cityscape photography showcasing modern architecture and urban landscapes.</p>
+    </div>
+  </div>
+</body>
+</html>
