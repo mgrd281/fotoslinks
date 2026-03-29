@@ -5,7 +5,7 @@
       "destination": "/image.html"
     },
     {
-      "source": "/(.*\\.(jpg|jpeg|png|gif|webp))",
+      "source": "/(.*)",
       "destination": "/api/$1"
     }
   ],
