@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Image</title>
@@ -37,12 +37,15 @@
       font-family: Arial, sans-serif;
       font-size: 18px;
     }
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
   <div class="image-container">
     <div class="loading" id="loading">Loading image...</div>
-    <img id="mainImage" class="main-image" style="display:none;" alt="Image">
+    <img id="mainImage" class="main-image hidden" alt="Image">
   </div>
 
   <script>
@@ -163,8 +166,8 @@
       // Load and display the image
       img.src = imageParam;
       img.onload = () => {
-        loading.style.display = 'none';
-        img.style.display = 'block';
+        loading.classList.add('hidden');
+        img.classList.remove('hidden');
         log('Image loaded successfully');
       };
 
