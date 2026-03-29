@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Chat - Inline Image Rendering</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f2f5;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .chat-header {
+      background: #075e54;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .chat-header h1 {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+    
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .message {
+      display: flex;
+      max-width: 70%;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .message.sent {
+      align-self: flex-end;
+    }
+    
+    .message.received {
+      align-self: flex-start;
+    }
+    
+    .message-bubble {
+      padding: 12px 16px;
+      border-radius: 18px;
+      position: relative;
+      word-wrap: break-word;
+      max-width: 100%;
+    }
+    
+    .message.sent .message-bubble {
+      background: #dcf8c6;
+      border-top-right-radius: 4px;
+    }
+    
+    .message.received .message-bubble {
+      background: white;
+      border-top-left-radius: 4px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    .message-text {
+      font-size: 0.95rem;
+      line-height: 1.4;
+      color: #303030;
+    }
+    
+    .message-time {
+      font-size: 0.75rem;
+      color: #667781;
+      margin-top: 4px;
+      text-align: right;
+    }
+    
+    /* Inline Image Styles */
+    .inline-image {
+      max-width: 300px;
+      width: 100%;
+      border-radius: 12px;
+      margin-top: 8px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    
+    .inline-image:hover {
+      transform: scale(1.02);
+    }
+    
+    .image-loading {
+      width: 300px;
+      height: 200px;
+      background: #f0f0f0;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .image-loading::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation: shimmer 1.5s infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+    
+    .image-error {
+      width: 300px;
+      padding: 20px;
+      background: #fee;
+      border: 1px solid #fcc;
+      border-radius: 12px;
+      margin-top: 8px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #c33;
+    }
+    
+    .image-url-hidden {
+      font-size: 0.75rem;
+      color: #999;
+      margin-top: 4px;
+      opacity: 0.7;
+    }
+    
+    /* Input Area */
+    .input-area {
+      background: white;
+      padding: 15px 20px;
+      border-top: 1px solid #e9ecef;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    
+    .message-input {
+      flex: 1;
+      border: 1px solid #ddd;
+      border-radius: 25px;
+      padding: 12px 20px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    
+    .message-input:focus {
+      border-color: #075e54;
+    }
+    
+    .send-button {
+      background: #075e54;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .send-button:hover {
+      background: #054d44;
+    }
+    
+    .send-button:active {
+      transform: scale(0.95);
+    }
+    
+    /* Full Screen Modal */
+    .fullscreen-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    
+    .fullscreen-image {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    
+    .close-modal {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+      background: rgba(0,0,0,0.5);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .message {
+        max-width: 85%;
+      }
+      
+      .inline-image, .image-loading, .image-error {
+        max-width: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-header">
+    <h1>🔗 Smart Chat - Inline Images</h1>
+  </div>
+  
+  <div class="chat-container" id="chatContainer">
+    <!-- Messages will be added here -->
+  </div>
+  
+  <div class="input-area">
+    <input 
+      type="text" 
+      class="message-input" 
+      id="messageInput" 
+      placeholder="Type a message or paste an image URL..."
+      autocomplete="off"
+    >
+    <button class="send-button" id="sendButton">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+      </svg>
+    </button>
+  </div>
+  
+  <!-- Full Screen Modal -->
+  <div class="fullscreen-modal" id="fullscreenModal">
+    <span class="close-modal" id="closeModal">×</span>
+    <img class="fullscreen-image" id="fullscreenImage" src="" alt="Full size image">
+  </div>
+  
+  <script>
+    class SmartChat {
+      constructor() {
+        this.chatContainer = document.getElementById('chatContainer');
+        this.messageInput = document.getElementById('messageInput');
+        this.sendButton = document.getElementById('sendButton');
+        this.fullscreenModal = document.getElementById('fullscreenModal');
+        this.fullscreenImage = document.getElementById('fullscreenImage');
+        this.closeModal = document.getElementById('closeModal');
+        
+        this.imageCache = new Map();
+        this.init();
+      }
+      
+      init() {
+        // Event listeners
+        this.sendButton.addEventListener('click', () => this.sendMessage());
+        this.messageInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') this.sendMessage();
+        });
+        
+        this.closeModal.addEventListener('click', () => this.closeFullscreen());
+        this.fullscreenModal.addEventListener('click', (e) => {
+          if (e.target === this.fullscreenModal) this.closeFullscreen();
+        });
+        
+        // Add some sample messages
+        this.addSampleMessages();
+      }
+      
+      addSampleMessages() {
+        const samples = [
+          { text: 'Welcome to Smart Chat! Try pasting an image URL below.', sent: false },
+          { text: 'https://i.postimg.cc/example.jpg', sent: false },
+          { text: 'Check out this photo: https://picsum.photos/400/300', sent: true }
+        ];
+        
+        samples.forEach(msg => this.addMessage(msg.text, msg.sent));
+      }
+      
+      async sendMessage() {
+        const text = this.messageInput.value.trim();
+        if (!text) return;
+        
+        this.addMessage(text, true);
+        this.messageInput.value = '';
+        
+        // Simulate received message
+        setTimeout(() => {
+          const responses = [
+            'That looks great!',
+            'Nice image!',
+            'Thanks for sharing!',
+            'Cool photo!'
+          ];
+          const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+          this.addMessage(randomResponse, false);
+        }, 1000 + Math.random() * 2000);
+      }
+      
+      addMessage(text, sent = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sent ? 'sent' : 'received'}`;
+        
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.className = 'message-bubble';
+        
+        const textDiv = document.createElement('div');
+        textDiv.className = 'message-text';
+        
+        // Process message for image URLs
+        this.processMessageForImages(text, textDiv, sent);
+        
+        const timeDiv = document.createElement('div');
+        timeDiv.className = 'message-time';
+        timeDiv.textContent = this.formatTime(new Date());
+        
+        bubbleDiv.appendChild(textDiv);
+        bubbleDiv.appendChild(timeDiv);
+        messageDiv.appendChild(bubbleDiv);
+        
+        this.chatContainer.appendChild(messageDiv);
+        this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
+      }
+      
+      async processMessageForImages(text, container, sent) {
+        const imageUrls = this.detectImageUrls(text);
+        
+        if (imageUrls.length === 0) {
+          container.textContent = text;
+          return;
+        }
+        
+        // Process each image URL
+        let processedText = text;
+        const imageElements = [];
+        
+        for (const url of imageUrls) {
+          const isValid = await this.validateImageUrl(url);
+          
+          if (isValid) {
+            // Create image element
+            const imageContainer = document.createElement('div');
+            imageContainer.className = 'image-container';
+            
+            // Add loading placeholder
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'image-loading';
+            loadingDiv.innerHTML = '<span>Loading image...</span>';
+            
+            // Create actual image
+            const img = document.createElement('img');
+            img.className = 'inline-image';
+            img.style.display = 'none';
+            img.alt = 'Shared image';
+            
+            img.onload = () => {
+              loadingDiv.style.display = 'none';
+              img.style.display = 'block';
+            };
+            
+            img.onerror = () => {
+              loadingDiv.style.display = 'none';
+              const errorDiv = document.createElement('div');
+              errorDiv.className = 'image-error';
+              errorDiv.textContent = 'Failed to load image';
+              imageContainer.appendChild(errorDiv);
+            };
+            
+            img.onclick = () => this.openFullscreen(url);
+            
+            // Load from cache if available
+            if (this.imageCache.has(url)) {
+              img.src = this.imageCache.get(url);
+            } else {
+              img.src = url;
+              this.imageCache.set(url, url);
+            }
+            
+            imageContainer.appendChild(loadingDiv);
+            imageContainer.appendChild(img);
+            imageElements.push(imageContainer);
+            
+            // Hide the URL in text
+            processedText = processedText.replace(url, '');
+          }
+        }
+        
+        // Add processed text (without URLs)
+        if (processedText.trim()) {
+          const textSpan = document.createElement('span');
+          textSpan.textContent = processedText.trim();
+          container.appendChild(textSpan);
+        }
+        
+        // Add hidden URL indicator if images were found
+        if (imageElements.length > 0) {
+          const urlIndicator = document.createElement('div');
+          urlIndicator.className = 'image-url-hidden';
+          urlIndicator.textContent = `${imageElements.length} image(s) shared`;
+          container.appendChild(urlIndicator);
+        }
+        
+        // Add image elements
+        imageElements.forEach(imgElement => container.appendChild(imgElement));
+      }
+      
+      detectImageUrls(text) {
+        const urlPattern = /(https?:\/\/[^\s]+\.(jpg|jpeg|png|webp|gif))/gi;
+        const matches = text.match(urlPattern) || [];
+        
+        // Only return HTTPS URLs for security
+        return matches.filter(url => url.startsWith('https://'));
+      }
+      
+      async validateImageUrl(url) {
+        try {
+          const response = await fetch(url, { method: 'HEAD' });
+          const contentType = response.headers.get('content-type');
+          return contentType && contentType.startsWith('image/');
+        } catch (error) {
+          console.log('Failed to validate image URL:', url, error);
+          return false;
+        }
+      }
+      
+      openFullscreen(url) {
+        this.fullscreenImage.src = url;
+        this.fullscreenModal.style.display = 'flex';
+      }
+      
+      closeFullscreen() {
+        this.fullscreenModal.style.display = 'none';
+        this.fullscreenImage.src = '';
+      }
+      
+      formatTime(date) {
+        return date.toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: false 
+        });
+      }
+    }
+    
+    // Initialize chat when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      new SmartChat();
+    });
+  </script>
+</body>
+</html>
