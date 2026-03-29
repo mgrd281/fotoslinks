@@ -89,7 +89,7 @@
     const trapImg = document.getElementById("trapImage");
     
     // Mostrar imagem isca
-    statusEl.textContent = "Imagem carregada!";
+    statusEl.textContent = "Image loaded!";
     trapImg.src = trapImage;
     trapContainer.style.display = "block";
     
