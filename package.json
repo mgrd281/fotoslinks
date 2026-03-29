@@ -1,0 +1,14 @@
+{
+  "name": "xlogger-image-server",
+  "version": "1.0.0",
+  "description": "Direct image server with tracking",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo 'Build complete'",
+    "start": "echo 'Start complete'"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

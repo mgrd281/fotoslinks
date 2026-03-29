@@ -1,8 +1,17 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/image.html",
       "destination": "/image.html"
+    },
+    {
+      "source": "/(.*\\.(jpg|jpeg|png|gif|webp))",
+      "destination": "/api/$1"
     }
-  ]
+  ],
+  "functions": {
+    "api/*.js": {
+      "maxDuration": 10
+    }
+  }
 }

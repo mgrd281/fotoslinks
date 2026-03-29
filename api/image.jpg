@@ -1,0 +1,16 @@
+import cityscape from '../public/cityscape.jpg';
+
+export default function handler(req, res) {
+  // Set proper image headers
+  res.setHeader('Content-Type', 'image/jpeg');
+  res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
+  // Return status 200 with the image
+  res.status(200);
+  
+  // Send the image buffer
+  res.send(cityscape.default);
+}
