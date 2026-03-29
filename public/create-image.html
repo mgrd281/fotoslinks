@@ -22,11 +22,13 @@
     
     <button onclick="generateImage()">إنشاء صورة</button>
     
-    <canvas id="canvas" width="400" height="300"></canvas>
+    <canvas id="canvas" width="400" height="500"></canvas>
+    
+    <div id="qr-container" style="margin: 20px 0;"></div>
     
     <button onclick="downloadImage()">تحميل الصورة</button>
     
-    <div style="margin-top:20px;text-align:right;background:#f9f9f9;padding:15px;border-radius:8px;">
+    <div class="instructions-box">
       <h4>طريقة الاستخدام:</h4>
       <ol style="line-height:2;">
         <li>أدخل الرابط</li>
@@ -38,23 +40,30 @@
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
+    let qrCodeObj = null;
+    
     function generateImage() {
       const canvas = document.getElementById('canvas');
       const ctx = canvas.getContext('2d');
       const url = document.getElementById('urlInput').value;
       
-      // Background
-      const gradient = ctx.createLinearGradient(0, 0, 400, 300);
+      // Clear canvas
+      ctx.fillStyle = '#667eea';
+      ctx.fillRect(0, 0, 400, 500);
+      
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, 400, 500);
       gradient.addColorStop(0, '#667eea');
       gradient.addColorStop(1, '#764ba2');
       ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, 400, 300);
+      ctx.fillRect(0, 0, 400, 500);
       
       // Border
       ctx.strokeStyle = 'white';
       ctx.lineWidth = 4;
-      ctx.strokeRect(10, 10, 380, 280);
+      ctx.strokeRect(10, 10, 380, 480);
       
       // Title
       ctx.fillStyle = 'white';
@@ -64,43 +73,52 @@
       
       // Subtitle
       ctx.font = '18px Arial';
-      ctx.fillText('انقر لعرض الصورة كاملة', 200, 100);
+      ctx.fillText('انقر لعرض الصورة كاملة', 200, 90);
       
-      // URL
-      ctx.font = '12px Arial';
-      ctx.fillStyle = '#f0f0f0';
+      // Generate real QR code
+      const qrContainer = document.getElementById('qr-container');
+      qrContainer.innerHTML = '';
       
-      // Shorten URL for display
-      let displayUrl = url;
-      if (url.length > 40) {
-        displayUrl = url.substring(0, 37) + '...';
-      }
-      ctx.fillText(displayUrl, 200, 200);
+      qrCodeObj = new QRCode(qrContainer, {
+        text: url,
+        width: 200,
+        height: 200,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
       
-      // QR Code placeholder (visual representation)
-      ctx.fillStyle = 'white';
-      ctx.fillRect(150, 100, 100, 100);
-      
-      // Draw QR pattern
-      ctx.fillStyle = 'black';
-      for(let i=0; i<10; i++) {
-        for(let j=0; j<10; j++) {
-          if ((i+j)%2 === 0) {
-            ctx.fillRect(155 + i*9, 105 + j*9, 8, 8);
-          }
+      // Wait for QR to generate then draw it on canvas
+      setTimeout(() => {
+        const qrImg = qrContainer.querySelector('img');
+        if (qrImg) {
+          ctx.drawImage(qrImg, 100, 120, 200, 200);
         }
-      }
-      
-      // Footer
-      ctx.fillStyle = 'white';
-      ctx.font = '14px Arial';
-      ctx.fillText('🔗 انقر هنا للفتح', 200, 250);
+        
+        // URL text
+        ctx.font = '12px Arial';
+        ctx.fillStyle = '#f0f0f0';
+        let displayUrl = url;
+        if (url.length > 40) {
+          displayUrl = url.substring(0, 37) + '...';
+        }
+        ctx.fillText(displayUrl, 200, 350);
+        
+        // Footer
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 16px Arial';
+        ctx.fillText('🔗 انقر هنا للفتح', 200, 420);
+        
+        // Instructions
+        ctx.font = '14px Arial';
+        ctx.fillText('امسح QR بالكاميرا أو انقر', 200, 450);
+      }, 500);
     }
     
     function downloadImage() {
       const canvas = document.getElementById('canvas');
       const link = document.createElement('a');
-      link.download = 'whatsapp-image.png';
+      link.download = 'whatsapp-qr.png';
       link.href = canvas.toDataURL('image/png');
       link.click();
     }
